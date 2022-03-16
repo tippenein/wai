@@ -1,8 +1,8 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE PatternGuards #-}
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TypeFamilies #-}
 -- | Some helpers for parsing data out of a raw WAI 'Request'.
 
 module Network.Wai.Parse
@@ -48,28 +48,29 @@ module Network.Wai.Parse
 #endif
     ) where
 
-import qualified Control.Exception as E
-import qualified Data.ByteString as S
-import qualified Data.ByteString.Lazy as L
-import qualified Data.ByteString.Char8 as S8
-import Data.Word (Word8)
-import Data.Int (Int64)
-import Data.Maybe (catMaybes, fromMaybe)
-import Data.List (sortBy)
-import Data.Function (on, fix)
-import System.Directory (removeFile, getTemporaryDirectory)
-import System.IO (hClose, openBinaryTempFile)
-import System.IO.Error (isDoesNotExistError)
-import Network.Wai
-import qualified Network.HTTP.Types as H
 import Control.Applicative ((<$>))
 import Control.Exception (catchJust)
-import Control.Monad (when, unless, guard)
-import Control.Monad.Trans.Resource (allocate, release, register, InternalState, runInternalState)
-import Data.IORef
-import Network.HTTP.Types (hContentType)
-import Network.HTTP2( HTTP2Error (..), ErrorCodeId (..) )
+import qualified Control.Exception as E
+import Control.Monad (guard, unless, when)
+import Control.Monad.Trans.Resource
+       (InternalState, allocate, register, release, runInternalState)
+import qualified Data.ByteString as S
+import qualified Data.ByteString.Char8 as S8
+import qualified Data.ByteString.Lazy as L
 import Data.CaseInsensitive (mk)
+import Data.Function (fix, on)
+import Data.IORef
+import Data.Int (Int64)
+import Data.List (sortBy)
+import Data.Maybe (catMaybes, fromMaybe)
+import Data.Word (Word8)
+import Network.HTTP.Types (hContentType)
+import qualified Network.HTTP.Types as H
+import Network.HTTP2 (ErrorCodeId(..), HTTP2Error(..))
+import Network.Wai
+import System.Directory (getTemporaryDirectory, removeFile)
+import System.IO (hClose, openBinaryTempFile)
+import System.IO.Error (isDoesNotExistError)
 
 import Prelude hiding (lines)
 
@@ -263,12 +264,12 @@ clearMaxHeaderLineLength p = p { prboMaxHeaderLineLength=Nothing }
 -- @since 3.0.16.0
 defaultParseRequestBodyOptions :: ParseRequestBodyOptions
 defaultParseRequestBodyOptions = ParseRequestBodyOptions
-    { prboKeyLength=Just 32
-    , prboMaxNumFiles=Just 10
+    { prboKeyLength=Nothing
+    , prboMaxNumFiles=Just 30
     , prboMaxFileSize=Nothing
     , prboMaxFilesSize=Nothing
     , prboMaxParmsSize=Just 65336
-    , prboMaxHeaderLines=Just 32
+    , prboMaxHeaderLines=Nothing
     , prboMaxHeaderLineLength=Just 8190 }
 
 -- | Do not impose any memory limits.
